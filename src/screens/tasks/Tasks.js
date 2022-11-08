@@ -6,33 +6,49 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 import React from 'react';
 import {connect} from 'react-redux';
-import { deleteTask } from '../../redux/actions/toDoActions';
+import {deleteTask} from '../../redux/actions/toDoActions';
 import Header from '../../components/Header';
+import ListEmptyComp from '../../components/ListEmptyComp';
 
 class Tasks extends React.Component {
+  constructor(props) {
+    super(props);
 
-    handleDeleteTask = (currId)=>{
-        const {taskData,route: {params: {type}}} = this.props;
-        const prevData = taskData[type]
-        const newData = prevData.filter(tasks => tasks.id !== currId)
-        // console.log(prevData);
-        console.log(newData);
-        this.props.pDeleteTask(newData,type)
-    }
+    this.state = {
+      toggleCheckBox: true,
+    };
+  }
 
-    handleEdit = (item,type)=>{
-        this.props.navigation.navigate('Add New Task',{type,item,edit:true})
-    }
+  handleDeleteTask = currId => {
+    const {
+      taskData,
+      route: {
+        params: {type},
+      },
+    } = this.props;
+    const prevData = taskData[type];
+    const newData = prevData.filter(tasks => tasks.id !== currId);
+    // console.log(prevData);
+    console.log(newData);
+    this.props.pDeleteTask(newData, type);
+  };
+
+  handleEdit = (item, type) => {
+    this.props.navigation.navigate('Add New Task', {type, item, edit: true});
+  };
 
   render() {
-
     const {navigation} = this.props;
-    const {taskData,route: {params: {type},},} = this.props;
+    const {
+      taskData,
+      route: {
+        params: {type},
+      },
+    } = this.props;
     // console.log(taskData[type]);
-
-    
 
     return (
       <View style={styles.mainContainer}>
@@ -43,19 +59,29 @@ class Tasks extends React.Component {
             return (
               <View style={styles.taskSection}>
                 <View style={styles.taskDetail}>
-                  <Text style={styles.title}>{item.title}</Text>
-                  <Text style={styles.description}>{item.description}</Text>
+                  <CheckBox
+                    disabled={false}
+                    value={this.state.toggleCheckBox}
+                    onValueChange={newValue =>
+                      this.setState({toggleCheckBox: newValue})
+                    }
+                  />
+                  <View style={styles.taskData}>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={styles.description}>{item.description}</Text>
+                  </View>
                 </View>
 
                 <View style={styles.operationSection}>
-                  <TouchableOpacity onPress={()=>this.handleEdit(item,type)}>
+                  <TouchableOpacity onPress={() => this.handleEdit(item, type)}>
                     <Image
                       style={styles.editIcon}
                       source={require('../../assets/editing.png')}
                     />
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity onPress={()=>this.handleDeleteTask(item.id)}>
+
+                  <TouchableOpacity
+                    onPress={() => this.handleDeleteTask(item.id)}>
                     <Image
                       style={styles.editIcon}
                       source={require('../../assets/delete.png')}
@@ -63,6 +89,11 @@ class Tasks extends React.Component {
                   </TouchableOpacity>
                 </View>
               </View>
+            );
+          }}
+          ListEmptyComponent={() => {
+            return (
+              <ListEmptyComp navigation={navigation} type ={type} />
             );
           }}
         />
@@ -89,31 +120,33 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
-    
-    pDeleteTask: deleteTask
-  };
+  pDeleteTask: deleteTask,
+};
 
 const styles = StyleSheet.create({
   mainContainer: {
-    // backgroundColor:'red',
     flex: 1,
-    // paddingHorizontal:10
   },
-  taskSection: {
-    backgroundColor:'#E6E6FA',
-    margin: 10,
-    borderRadius:20
+  
 
+  taskSection: {
+    backgroundColor: '#E6E6FA',
+    margin: 10,
+    borderRadius: 20,
   },
   taskDetail: {
     height: 90,
-    justifyContent: 'center',
     paddingLeft: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  taskData:{
+    marginLeft:20
   },
   title: {
-    fontWeight:'bold',
+    fontWeight: 'bold',
     fontSize: 25,
-    color:'rgb(48,31,107)'
+    color: 'rgb(48,31,107)',
   },
   operationSection: {
     borderTopWidth: 1,
@@ -136,4 +169,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default connect(mapStateToProps,mapDispatchToProps)(Tasks);
+export default connect(mapStateToProps, mapDispatchToProps)(Tasks);
