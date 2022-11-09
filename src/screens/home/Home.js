@@ -24,6 +24,7 @@ const Home = ({navigation}) => {
           onPress={() =>
             navigation.navigate('Tasks', {
               type: 'personal',
+              title: "Personal Errands",
             })
           }>
           <Image
@@ -38,6 +39,7 @@ const Home = ({navigation}) => {
           onPress={() =>
             navigation.navigate('Tasks', {
               type: 'work',
+              title: "Work Projects",
             })
           }>
             <Image
@@ -51,6 +53,7 @@ const Home = ({navigation}) => {
           onPress={() =>
             navigation.navigate('Tasks', {
               type: 'grocery',
+              title: "Grocery List",
             })
           }>
             <Image

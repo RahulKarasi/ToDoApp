@@ -50,6 +50,7 @@ export class AddTask extends Component {
         title: this.state.title,
         description: this.state.description,
         id: +new Date(),
+        isCompleted:false
       };
 
       taskData[type].push(newTask);
@@ -116,6 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     shadowOpacity: 0.1,
     shadowRadius: 10,
+    paddingLeft:15
   },
   btn: {
     marginTop: 20,

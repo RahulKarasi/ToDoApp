@@ -9,7 +9,11 @@ import {
 import CheckBox from '@react-native-community/checkbox';
 import React from 'react';
 import {connect} from 'react-redux';
-import {deleteTask} from '../../redux/actions/toDoActions';
+import {
+  deleteTask,
+  editTask,
+  isCompleted,
+} from '../../redux/actions/toDoActions';
 import Header from '../../components/Header';
 import ListEmptyComp from '../../components/ListEmptyComp';
 
@@ -18,7 +22,7 @@ class Tasks extends React.Component {
     super(props);
 
     this.state = {
-      toggleCheckBox: true,
+      toggleCheckBox: false,
     };
   }
 
@@ -32,12 +36,34 @@ class Tasks extends React.Component {
     const prevData = taskData[type];
     const newData = prevData.filter(tasks => tasks.id !== currId);
     // console.log(prevData);
-    console.log(newData);
+    // console.log(newData);
     this.props.pDeleteTask(newData, type);
   };
 
   handleEdit = (item, type) => {
     this.props.navigation.navigate('Add New Task', {type, item, edit: true});
+  };
+
+  changeStatus = (newVal, item) => {
+    console.log(newVal);
+    const {
+      taskData,
+      route: {
+        params: {type},
+      },
+    } = this.props;
+    const prevData = taskData[type];
+    const finalData = prevData.map(element => {
+      if (element.id === item.id) {
+        return {
+          ...element,
+          isCompleted: newVal,
+        };
+      } else {
+        return element;
+      }
+    });
+    this.props.pEditTask(finalData, type);
   };
 
   render() {
@@ -48,11 +74,17 @@ class Tasks extends React.Component {
         params: {type},
       },
     } = this.props;
-    // console.log(taskData[type]);
+    console.log(taskData[type]);
 
+    //  console.log(this.props.route);
     return (
       <View style={styles.mainContainer}>
-        <Header heading="Tasks" navigation={navigation} />
+        <Header
+          heading={this.props.route.params.title}
+          navigation={navigation}
+        />
+        
+        
         <FlatList
           data={taskData[type]}
           renderItem={({item}) => {
@@ -60,11 +92,11 @@ class Tasks extends React.Component {
               <View style={styles.taskSection}>
                 <View style={styles.taskDetail}>
                   <CheckBox
-                    disabled={false}
-                    value={this.state.toggleCheckBox}
-                    onValueChange={newValue =>
-                      this.setState({toggleCheckBox: newValue})
-                    }
+                    disabled={taskData[type].isCompleted}
+                    value={item.isCompleted}
+                    onValueChange={newVal => {
+                      this.changeStatus(newVal, item);
+                    }}
                   />
                   <View style={styles.taskData}>
                     <Text style={styles.title}>{item.title}</Text>
@@ -92,11 +124,11 @@ class Tasks extends React.Component {
             );
           }}
           ListEmptyComponent={() => {
-            return (
-              <ListEmptyComp navigation={navigation} type ={type} />
-            );
+            return <ListEmptyComp navigation={navigation} type={type} />;
           }}
         />
+  
+        {/* <Text>Completed Tasks</Text> */}
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('Add New Task', {
@@ -120,14 +152,15 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = {
+  pEditTask: editTask,
   pDeleteTask: deleteTask,
+  pIsCompleted: isCompleted,
 };
 
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
   },
-  
 
   taskSection: {
     backgroundColor: '#E6E6FA',
@@ -140,12 +173,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  taskData:{
-    marginLeft:20
+  taskData: {
+    marginLeft: 20,
   },
   title: {
     fontWeight: 'bold',
     fontSize: 25,
+    color: 'rgb(48,31,107)',
+    marginBottom: 3,
+  },
+  description: {
     color: 'rgb(48,31,107)',
   },
   operationSection: {
